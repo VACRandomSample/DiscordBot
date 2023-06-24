@@ -1,6 +1,6 @@
 const { Routes, REST, Events } = require('discord.js');
-// const guildRaw = require('../../raw/guild')
-const guildRaw = require('../../DB/models/guildRaw.js');
+const {Guilds, Members} = require('../../DB/models/tables.js');
+const sequelize = require('../../DB/initdb.js');
 require("dotenv").config();
 
 module.exports = {
@@ -12,8 +12,8 @@ module.exports = {
         (async () => {
             console.log('\u001b[1;36m#DROP DATABASE\u001b[0m');
             try {
-                await guildRaw.drop();
-                console.log('\u001b[1;36m#DB TABLES ["Users"] droped\u001b[0m')
+                await sequelize.drop();
+                console.log('\u001b[1;36m#DB DATABASE droped\u001b[0m')
             } catch (error) {
                 console.error(`\u001b[1;31m#DB ERROR DROP DATABASE:\u001b[0m`, error);
             } 
@@ -21,8 +21,10 @@ module.exports = {
 
         (async () => {
             try {
-                await guildRaw.sync({ force: true });
-                console.log('\u001b[1;36m#DB TABLES ["Users"] created successfully.\u001b[0m');
+                await sequelize.sync({ force: true });
+                // await membersRaw.sync({ force: true });
+                
+                console.log('\u001b[1;36m#DB TABLES ["Guilds", "Members"] created successfully.\u001b[0m');
             } catch (error) {
                 console.error('\u001b[1;31m#ERROR creating tables:\u001b[0m', error);
             }
