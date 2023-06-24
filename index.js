@@ -32,6 +32,22 @@ for (const file of commandFiles) {
 	}
 }
 
+const eventFolders = fs.readdirSync(`./src/events/`)
+
+for (let folder of eventFolders) {
+	const eventFiles = fs
+	.readdirSync(`./src/events/${folder}`)
+	.filter((file) => file.endsWith('.js'))
+	for (const file of eventFiles){
+		const event = require(`./src/events/${folder}/${file}`);
+		if (event.once) {
+			client.once(event.name, (...args) => event.execute(...args, commands, client));
+		} else {
+			client.on(event.name, (...args) => event.execute(...args, commands, client));
+		}
+	}
+}
+
 figlet("VAC-LOGGING", { font: "banner4" }, (err, data) => {console.log(data)})
 
 client.once(Events.ClientReady, c => {
