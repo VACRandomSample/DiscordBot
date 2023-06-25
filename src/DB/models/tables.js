@@ -11,9 +11,9 @@ const Guilds = sequelize.define('Guilds', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    registeredAt: {
-        type: DataTypes.DATE,
-        allowNull: false
+    muteRole: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 });
 
@@ -32,6 +32,9 @@ const Members = sequelize.define('Members', {
         allowNull: true
     }
 });
+
+Guilds.hasMany(Members);
+Members.belongsTo(Guilds);
 
 module.exports ={
     Guilds, Members

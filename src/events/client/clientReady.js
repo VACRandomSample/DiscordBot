@@ -22,7 +22,6 @@ module.exports = {
         (async () => {
             try {
                 await sequelize.sync({ force: true });
-                // await membersRaw.sync({ force: true });
                 
                 console.log('\u001b[1;36m#DB TABLES ["Guilds", "Members"] created successfully.\u001b[0m');
             } catch (error) {
@@ -34,14 +33,25 @@ module.exports = {
         .then(async(guilds) => {
             
             guilds.forEach(async(guild) => {
+                
+                const guildDB = await Guilds.create({
+                    guildId: guild.id
+                })
 
                 const guildMembers = await client.guilds.cache.get(guild.id)
                 const members = await guildMembers.members.fetch()
 
                 members.forEach(async(member) => {
+
                     const roles = member.roles.cache
                                 .filter((roles)=> roles.id)
                                 .map((role)=> role.toString())
+
+                    const memberDB = await Members.create({
+                        memberId: member.id,
+                        roles: roles,
+                        GuildId: guildDB.id
+                    })
                 })
             })
         })

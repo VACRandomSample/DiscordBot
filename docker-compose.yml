@@ -11,20 +11,18 @@ services:
       POSTGRES_DB: DBbot
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - postgres
-    restart: always
-    ports:
-      - '3000:3000'
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: DBbot
-      DB_USER: vac
-      DB_PASSWORD: M@linin!!!
-    volumes:
-    - ./app-data:/home
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - postgres
+  #   restart: always
+  #   ports:
+  #     - '3000:3000'
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_NAME: DBbot
+  #     DB_USER: vac
+  #     DB_PASSWORD: M@linin!!!

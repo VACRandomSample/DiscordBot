@@ -34,7 +34,7 @@ for (let folder of commandFolders) {
 	for (const file of commandFiles){
 		const command = require(`./src/commands/${folder}/${file}`)
 		commands.push(command.data.toJSON());
-		client.commands.set(command.name, command)
+		client.commands.set(command.data.name, command)
 	}
 	
 }
@@ -61,5 +61,4 @@ for (let folder of eventFolders) {
 	}
 }
 
-// Log in to Discord with your client's token
 client.login(token);
