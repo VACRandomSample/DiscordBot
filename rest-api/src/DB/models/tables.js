@@ -33,8 +33,28 @@ const Members = sequelize.define('Members', {
     }
 });
 
+const Mutes = sequelize.define('Mutes', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
+    startAt: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    endAt: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+
+})
+
 Guilds.hasMany(Members);
 Members.belongsTo(Guilds);
+
+Members.hasMany(Mutes);
+Mutes.belongsTo(Members);
 
 module.exports ={
     Guilds, Members

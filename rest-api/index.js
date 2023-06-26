@@ -1,8 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const sequelize = require('./src/DB/initdb')
 require('dotenv').config()
-
 var figlet = require("figlet");
 
 figlet("VAC-APP", { font: "banner4" }, (err, data) => {console.log(data)});
@@ -60,5 +60,26 @@ for (let folder of eventFolders) {
 		}
 	}
 }
+
+// Сброс таблиц и их создание
+(async () => {
+	console.log('\u001b[1;36m#DROP DATABASE\u001b[0m');
+	try {
+		await sequelize.drop();
+		console.log('\u001b[1;36m#DB DATABASE droped\u001b[0m')
+	} catch (error) {
+		console.error(`\u001b[1;31m#DB ERROR DROP DATABASE:\u001b[0m`, error);
+	} 
+})();
+
+(async () => {
+	try {
+		await sequelize.sync({ force: true });
+		
+		console.log('\u001b[1;36m#DB TABLES ["Guilds", "Members"] created successfully.\u001b[0m');
+	} catch (error) {
+		console.error('\u001b[1;31m#ERROR creating tables:\u001b[0m', error);
+	}
+})();
 
 client.login(token);

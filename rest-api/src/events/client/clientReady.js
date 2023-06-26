@@ -1,43 +1,25 @@
-const { Routes, REST, Events } = require('discord.js');
+const { Routes, REST, Events, ActivityType } = require('discord.js');
 const {Guilds, Members} = require('../../DB/models/tables.js');
-const sequelize = require('../../DB/initdb.js');
 require("dotenv").config();
 
 module.exports = {
     name: Events.ClientReady,
     once: true,
-    async execute(client, commands) {
-        // Сброс таблиц и их создание
+    async execute(client, commands) {        
         
-        (async () => {
-            console.log('\u001b[1;36m#DROP DATABASE\u001b[0m');
-            try {
-                await sequelize.drop();
-                console.log('\u001b[1;36m#DB DATABASE droped\u001b[0m')
-            } catch (error) {
-                console.error(`\u001b[1;31m#DB ERROR DROP DATABASE:\u001b[0m`, error);
-            } 
-        })();
-
-        (async () => {
-            try {
-                await sequelize.sync({ force: true });
-                
-                console.log('\u001b[1;36m#DB TABLES ["Guilds", "Members"] created successfully.\u001b[0m');
-            } catch (error) {
-                console.error('\u001b[1;31m#ERROR creating tables:\u001b[0m', error);
-            }
-        })();
-
         client.guilds.fetch()
         .then(async(guilds) => {
             
             guilds.forEach(async(guild) => {
                 
-                const guildDB = await Guilds.create({
-                    guildId: guild.id
+                const guildDB = await Guilds.findOrCreate({
+                    where:{
+                        guildId: guild.id
+                    },
+                    defaults: {
+                        guildId: guild.id
+                    }
                 })
-
                 const guildMembers = await client.guilds.cache.get(guild.id)
                 const members = await guildMembers.members.fetch()
 
@@ -47,10 +29,16 @@ module.exports = {
                                 .filter((roles)=> roles.id)
                                 .map((role)=> role.toString())
 
-                    const memberDB = await Members.create({
-                        memberId: member.id,
-                        roles: roles,
-                        GuildId: guildDB.id
+                    const memberDB = await Members.findOrCreate({
+                        where:{
+                            memberId: member.id,
+                            GuildId: guildDB[0].id
+                        },
+                        defaults: {
+                            memberId: member.id,
+                            roles: roles,
+                            GuildId: guildDB[0].id
+                        }
                     })
                 })
             })
@@ -73,6 +61,40 @@ module.exports = {
             } catch (error) {
                 console.error(error);
             }
-        })();        
+        })();  
+        
+        // Назначение статуса
+        async function executeInInterval(interval) {
+            
+            let index = 0;
+            const dataArray = await run()
+
+            setInterval(() => {
+                
+                run(index)
+
+                index++;
+
+                if (index >= dataArray.length) {
+                    index = 0; // Начать сначала, если массив кончился
+                }
+            }, interval);
+        }
+
+        async function run(index) {
+            const countGuilds = await Guilds.count();
+            const countMembers = await Members.count();
+
+            const dataArray = [`${countGuilds} сервера`, `${countMembers} участника`];
+            
+            client.user.setActivity(dataArray[index], { type: ActivityType.Watching  });
+            console.log(`Set status to ${dataArray[index]}`); // Выполнение операций над данными
+
+            return dataArray
+        }
+
+        const intervalInMilliseconds = 30000; // 30 секунды
+
+        await executeInInterval(intervalInMilliseconds);   
     }
 }
